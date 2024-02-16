@@ -8,11 +8,11 @@ Navigate to the project directory.
 Run npm install to install all dependencies.
 
 Usage
+
 Starting the Server
 To start the server, run the following command:
 
 npm start
-
 This will initiate the server and make the financial application accessible.
 
 Managing Balances
@@ -21,15 +21,8 @@ Users can manage their balances by topping up their account in their preferred c
 Currency Conversion
 The application allows users to convert their balance from one currency to another. Users can specify the source currency and the target currency for conversion. The conversion is performed using real-time exchange rates.
 
-API Endpoints
-The server provides the following API endpoints for interaction:
-
-/api/topup: Allows users to top up their balance in their preferred currency.
-/api/convert: Allows users to convert their balance from one currency to another.
-/api/balance: Retrieves the current balance of the user in different currencies.
 
 Error Handling
-
 The application handles errors gracefully and provides appropriate error messages in case of invalid inputs or server-side issues.
 
 License
