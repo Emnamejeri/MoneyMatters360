@@ -34,6 +34,16 @@
           />
         </div>
         <div class="form-group">
+          <label for="address">Country of Residence:</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            v-model="address"
+            required
+          />
+        </div>
+        <div class="form-group">
           <label for="dob">Date of Birth:</label>
           <input type="date" id="dob" name="dob" v-model="dob" required />
         </div>
@@ -58,10 +68,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import RegistrationConfirmation from "./RegistrationConfirmation.vue";
+import axios from "axios";
 
 const fullName = ref("");
 const email = ref("");
 const username = ref("");
+const address = ref("");
 const dob = ref("");
 const password = ref("");
 const errorMessage = ref("");
@@ -73,6 +85,7 @@ const validateForm = () => {
     !email.value ||
     !username.value ||
     !dob.value ||
+    !address.value ||
     !password.value
   ) {
     errorMessage.value = "All fields are required";
@@ -81,13 +94,28 @@ const validateForm = () => {
   return true;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (validateForm()) {
-    registrationSuccessful.value = true;
-    errorMessage.value = "";
+    try {
+      const response = await axios.post("/api/register", {
+        fullName: fullName.value,
+        email: email.value,
+        username: username.value,
+        address: address.value,
+        dob: dob.value,
+        password: password.value,
+      });
+      console.log(response.data);
+      registrationSuccessful.value = true;
+      errorMessage.value = "";
+    } catch (error) {
+      console.error(error);
+      errorMessage.value = "An error occurred during registration";
+    }
   }
 };
 </script>
+
 <style scoped>
 body {
   font-family: Arial, sans-serif;
@@ -145,6 +173,7 @@ label {
 
 input[type="text"],
 input[type="email"],
+input[type="address"],
 input[type="password"],
 input[type="date"] {
   width: 70%;

@@ -4,14 +4,27 @@
       <h1>Login</h1>
     </header>
     <main>
-      <form class="login-form">
+      <form class="login-form" @submit.prevent="login">
         <div class="form-group">
           <label for="username">Username or Email:</label>
-          <input type="text" id="username" name="username" required />
+          <input
+            type="text"
+            v-model="username"
+            id="username"
+            name="username"
+            required
+          />
         </div>
+
         <div class="form-group">
           <label for="password">Password:</label>
-          <input type="password" id="password" name="password" required />
+          <input
+            type="password"
+            v-model="password"
+            id="password"
+            name="password"
+            required
+          />
         </div>
         <button type="submit">Login</button>
       </form>
@@ -19,7 +32,38 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import axios from "axios";
+
+// Define reactive variables and router
+const username = ref("");
+const password = ref("");
+const router = useRouter();
+
+// Define the login function
+const login = async () => {
+  try {
+    // Make HTTP POST request to your backend API
+    const response = await axios.post("/api/login", {
+      username: username.value,
+      password: password.value,
+    });
+
+    // Assuming your backend returns a token upon successful authentication
+    const token = response.data.token;
+
+    // Store the token in local storage or Vuex store for future requests
+
+    // Redirect to MainPage.vue upon successful authentication
+    router.push({ name: "MainPage" });
+  } catch (error) {
+    console.error("Login failed:", error);
+    alert("Login failed. Please try again."); // Display an error message to the user
+  }
+};
+</script>
 
 <style scoped>
 * {
