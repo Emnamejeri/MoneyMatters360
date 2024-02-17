@@ -1,6 +1,3 @@
-import { createTRPCClient } from "@trpc/client";
-import { z } from "zod";
-
 const schemas = {
   UserProfileRequest: z.object({
     userId: z.string(),
@@ -40,25 +37,32 @@ const schemas = {
   }),
 };
 
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { z } from "zod";
+import { appRouter } from "../../../service/src/trpcServer";
+
 // Create tRPC client
-export const trpcClient = createTRPCClient({
-  client: {
-    http: "http://localhost:5378/api",
-    queries: {
-      getUserProfile: {
-        input: schemas.UserProfileRequest,
-        output: schemas.UserProfileResponse,
-      },
+const trpcClient = createTRPCClient<appRouter>({
+  links: [
+    httpBatchLink({
+      url: "http://localhost:3000/api",
+    }),
+  ],
+  // @ts-ignore
+  queries: {
+    getUserProfile: {
+      input: schemas.UserProfileRequest,
+      output: schemas.UserProfileResponse,
     },
-    mutations: {
-      registerUser: {
-        input: schemas.UserRegistrationRequest,
-        output: schemas.UserRegistrationResponse,
-      },
-      loginUser: {
-        input: schemas.UserLoginRequest,
-        output: schemas.UserLoginResponse,
-      },
+  },
+  mutations: {
+    registerUser: {
+      input: schemas.UserRegistrationRequest,
+      output: schemas.UserRegistrationResponse,
+    },
+    loginUser: {
+      input: schemas.UserLoginRequest,
+      output: schemas.UserLoginResponse,
     },
   },
 });

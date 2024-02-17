@@ -68,7 +68,7 @@ const userController = {
       }
 
       if (!isValidCurrency(fromCurrency) || !isValidCurrency(toCurrency)) {
-        return res.status(400).json({ message: "Invalid currency" });
+        return res.status(400).json({ message: "Invalid currency please select another" });
       }
 
       let sourceBalance: number;

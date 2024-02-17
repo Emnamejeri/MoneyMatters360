@@ -1,15 +1,15 @@
-import express, { ErrorRequestHandler, Request, Response } from "express";
-import { trpcRouter } from "./trpcServer";
+import express, { ErrorRequestHandler } from "express";
+import { router } from "./trpcServer";
 
 const app = express();
 
 app.use(express.json());
 
-app.use("/api", trpcRouter);
+app.use("/api", router);
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Something broke!");
+  res.status(500).send("Something broke in the server initiation!");
 };
 
 app.use(errorHandler);

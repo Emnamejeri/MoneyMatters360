@@ -6,6 +6,9 @@
         <router-link class="nav-link" to="/">Home</router-link>
         <router-link class="nav-link" to="/register">Register</router-link>
         <router-link class="nav-link" to="/authenticate">Sign In</router-link>
+        <router-link class="nav-link" to="/profiletesting"
+          >Profile (for testing purposes)</router-link
+        >
       </div>
     </nav>
   </header>
@@ -42,7 +45,7 @@
 }
 
 .nav-link:hover {
-  color: #ff4500;
+  color: #f18f6b;
 }
 </style>
 

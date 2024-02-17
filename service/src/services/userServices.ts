@@ -57,7 +57,7 @@ const userServices = {
     amount: number
   ) => {
     try {
-      const userBalance = await UserBalance.findByPk(userId);
+      const userBalance: any = await UserBalance.findByPk(userId);
 
       if (!userBalance) {
         return { success: false, message: "User balance not found" };
