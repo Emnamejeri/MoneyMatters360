@@ -15,11 +15,31 @@
       </select>
       <button @click="topUp">Top Up</button>
     </div>
+    <div class="conversion-card"> 
+      <h3>Currency Conversion</h3>
+      <input
+        type="number"
+        v-model="conversionAmount"
+        placeholder="Enter amount"
+      />
+      <select v-model="fromCurrency">
+        <option v-for="balance in balances" :value="balance.currency">
+          {{ balance.currency }}
+        </option>
+      </select>
+      <select v-model="toCurrency">
+        <option v-for="balance in balances" :value="balance.currency">
+          {{ balance.currency }}
+        </option>
+      </select>
+      <button @click="convert">Convert</button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import axios from 'axios';
 
 interface Balance {
   currency: string;
@@ -37,10 +57,14 @@ export default defineComponent({
       ] as Balance[],
       topUpAmount: "",
       selectedCurrency: "EUR" as string,
+      fromCurrency: "EUR" as string,
+      toCurrency: "USD" as string,
+      conversionAmount: "",
     };
   },
   methods: {
     topUp() {
+      //@ts-ignore
       if (!isNaN(parseFloat(this.topUpAmount)) && isFinite(this.topUpAmount)) {
         const amount = parseFloat(this.topUpAmount);
         const selectedBalance = this.balances.find(
@@ -56,9 +80,38 @@ export default defineComponent({
         alert("Please enter a valid amount!");
       }
     },
+    convertFunds() {
+      const fromBalance = this.balances.find(
+        (balance) => balance.currency === this.fromCurrency
+      );
+      const toBalance = this.balances.find(
+        (balance) => balance.currency === this.toCurrency
+      );
+      if (fromBalance && toBalance) {
+        if (fromBalance.amount >= parseFloat(this.conversionAmount)) {
+          fromBalance.amount -= parseFloat(this.conversionAmount);
+          toBalance.amount += parseFloat(this.conversionAmount);
+          this.conversionAmount = "";
+          
+          // Update balances in the backend
+          axios.post('/update-balances', { balances: this.balances })
+            .then(response => {
+              console.log('Balances updated successfully:', response.data);
+            })
+            .catch(error => {
+              console.error('Error updating balances:', error);
+            });
+        } else {
+          alert("Insufficient balance in the selected currency!");
+        }
+      } else {
+        alert("Selected currencies not found!");
+      }
+    },
   },
 });
 </script>
+
 
 <style>
 .balance-container {
