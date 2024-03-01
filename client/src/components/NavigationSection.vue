@@ -7,7 +7,7 @@
         <router-link class="nav-link" to="/register">Register</router-link>
         <router-link class="nav-link" to="/authenticate">Sign In</router-link>
         <router-link class="nav-link" to="/profiletesting"
-          >Profile (for testing purposes)</router-link
+          >Profile (for testing)</router-link
         >
       </div>
     </nav>

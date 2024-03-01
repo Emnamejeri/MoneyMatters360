@@ -2,6 +2,7 @@
   <div id="app">
     <NavigationSection />
     <router-view />
+    <FooterSection />
   </div>
 </template>
 
@@ -23,5 +24,7 @@ export default defineComponent({
 #app {
   max-height: 20em;
   max-width: 70em;
+  box-sizing: border-box;
+  padding: 20px;
 }
 </style>

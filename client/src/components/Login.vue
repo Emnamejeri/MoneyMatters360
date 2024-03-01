@@ -35,32 +35,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import trpcClient from "../services/trpcClient";
 
-// Define reactive variables and router
 const username = ref("");
 const password = ref("");
 const router = useRouter();
 
-// Define the login function
 const login = async () => {
   try {
-    // Make HTTP POST request to your backend API
-    const response = await axios.post("/api/login", {
+    const response = await trpcClient.mutations.loginUser({
       username: username.value,
       password: password.value,
     });
 
-    // Assuming your backend returns a token upon successful authentication
-    const token = response.data.token;
+    const token = response.token;
+    localStorage.setItem("token", token);
 
-    // Store the token in local storage or Vuex store for future requests
-
-    // Redirect to MainPage.vue upon successful authentication
     router.push({ name: "MainPage" });
   } catch (error) {
     console.error("Login failed:", error);
-    alert("Login failed. Please try again."); // Display an error message to the user
+    alert("Login failed. Please try again.");
   }
 };
 </script>

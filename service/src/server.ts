@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use("/api", router);
+app.use("/moneymatters", router);
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.error(err.stack);
@@ -14,7 +14,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

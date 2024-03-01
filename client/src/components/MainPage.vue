@@ -40,113 +40,122 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import axios from "axios";
+<script setup lang="ts">
+import { ref } from "vue";
+import trpcClient from "../services/trpcClient";
 
 interface Balance {
   currency: string;
   amount: number;
 }
 
-export default defineComponent({
-  data() {
-    return {
-      balances: [
-        { currency: "EUR", amount: 0 },
-        { currency: "USD", amount: 0 },
-        { currency: "GBP", amount: 0 },
-        { currency: "JPY", amount: 0 },
-      ] as Balance[],
-      topUpAmount: "",
-      selectedCurrency: "EUR" as string,
-      fromCurrency: "EUR" as string,
-      toCurrency: "USD" as string,
-      conversionAmount: "",
-      showAlert: false,
-      alertType: "",
-      alertMessage: "",
-    };
-  },
-  methods: {
-    topUp() {
-      //@ts-ignore
-      if (!isNaN(parseFloat(this.topUpAmount)) && isFinite(this.topUpAmount)) {
-        const amount = parseFloat(this.topUpAmount);
-        const selectedBalance = this.balances.find(
-          (balance) => balance.currency === this.selectedCurrency
-        );
-        if (selectedBalance) {
-          selectedBalance.amount += amount;
-          this.topUpAmount = "";
+const balances = ref<Balance[]>([
+  { currency: "EUR", amount: 0 },
+  { currency: "USD", amount: 0 },
+  { currency: "GBP", amount: 0 },
+  { currency: "JPY", amount: 0 },
+]);
 
-          // Update balances in the backend db
-          this.updateBalances();
-        } else {
-          alert("Balance not found!");
-        }
-      } else {
-        alert("Please enter a valid amount!");
-      }
-    },
+const topUpAmount = ref("");
+const selectedCurrency = ref("EUR");
+const fromCurrency = ref("EUR");
+const toCurrency = ref("USD");
+const conversionAmount = ref("");
+const showAlert = ref(false);
+const alertType = ref("");
+const alertMessage = ref("");
 
-    //@ts-ignore
-    showErrorAlert(message) {
-      this.alertType = "alert-danger";
-      this.alertMessage = message;
-      this.showAlert = true;
-      setTimeout(() => {
-        this.showAlert = false;
-      }, 5000);
-    },
-    convert() {
-      if (
-        isNaN(parseFloat(this.conversionAmount)) ||
-        //@ts-ignore
-        !isFinite(this.conversionAmount)
-      ) {
-        alert("Please enter a valid numeric value for the conversion amount.");
-        return;
-      }
-
-      if (this.fromCurrency === this.toCurrency) {
-        alert("You cannot convert between the same currency.");
-        return;
-      }
-
-      const fromBalance = this.balances.find(
-        (balance) => balance.currency === this.fromCurrency
-      );
-      const toBalance = this.balances.find(
-        (balance) => balance.currency === this.toCurrency
-      );
-      if (fromBalance && toBalance) {
-        if (fromBalance.amount >= parseFloat(this.conversionAmount)) {
-          fromBalance.amount -= parseFloat(this.conversionAmount);
-          toBalance.amount += parseFloat(this.conversionAmount);
-          this.conversionAmount = "";
-
-          // Update balances in the backend
-          this.updateBalances();
-        } else {
-          alert("Insufficient balance in the selected currency!");
-        }
-      } else {
-        alert("Selected currencies not found!");
-      }
-    },
-    updateBalances() {
-      axios
-        .post("/update-balances", { balances: this.balances })
-        .then((response) => {
-          console.log("Balances updated successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Error updating balances:", error);
+const topUp = async () => {
+  if (
+    !isNaN(parseFloat(topUpAmount.value)) &&
+    isFinite(parseFloat(topUpAmount.value))
+  ) {
+    const amount = parseFloat(topUpAmount.value);
+    const selectedBalance = balances.value.find(
+      (balance) => balance.currency === selectedCurrency.value
+    );
+    if (selectedBalance) {
+      selectedBalance.amount += amount;
+      topUpAmount.value = "";
+      try {
+        await trpcClient.mutations.topUp({
+          amount,
+          currency: selectedCurrency.value,
         });
-    },
-  },
-});
+        updateBalances();
+      } catch (error) {
+        showErrorAlert("Error topping up balance.");
+      }
+    } else {
+      showErrorAlert("Balance not found!");
+    }
+  } else {
+    showErrorAlert("Please enter a valid amount!");
+  }
+};
+
+const convert = async () => {
+  if (
+    isNaN(parseFloat(conversionAmount.value)) ||
+    !isFinite(parseFloat(conversionAmount.value))
+  ) {
+    showErrorAlert(
+      "Please enter a valid numeric value for the conversion amount."
+    );
+    return;
+  }
+
+  if (fromCurrency.value === toCurrency.value) {
+    showErrorAlert("You cannot convert between the same currency.");
+    return;
+  }
+
+  const fromBalance = balances.value.find(
+    (balance) => balance.currency === fromCurrency.value
+  );
+  const toBalance = balances.value.find(
+    (balance) => balance.currency === toCurrency.value
+  );
+  if (fromBalance && toBalance) {
+    if (fromBalance.amount >= parseFloat(conversionAmount.value)) {
+      fromBalance.amount -= parseFloat(conversionAmount.value);
+      toBalance.amount += parseFloat(conversionAmount.value);
+      conversionAmount.value = "";
+
+      try {
+        await trpcClient.mutations.convertCurrency({
+          fromCurrency: fromCurrency.value,
+          toCurrency: toCurrency.value,
+          amount: parseFloat(conversionAmount.value),
+        });
+        updateBalances();
+      } catch (error) {
+        showErrorAlert("Error converting currency.");
+      }
+    } else {
+      showErrorAlert("Insufficient balance in the selected currency!");
+    }
+  } else {
+    showErrorAlert("Selected currencies not found!");
+  }
+};
+
+const updateBalances = async () => {
+  try {
+    await trpcClient.mutations.updateBalances({ balances: balances.value });
+  } catch (error) {
+    console.error("Error updating balances:", error);
+  }
+};
+
+const showErrorAlert = (message: string) => {
+  alertType.value = "alert-danger";
+  alertMessage.value = message;
+  showAlert.value = true;
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 5000);
+};
 </script>
 
 <style>

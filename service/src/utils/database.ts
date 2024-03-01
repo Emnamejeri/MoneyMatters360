@@ -3,7 +3,7 @@ import { Sequelize } from "sequelize";
 const sequelize = new Sequelize("user_data", "postgres", "azerty", {
   host: "localhost",
   dialect: "postgres",
-  port: 3000,
+  port: 5432,
   logging: false,
 });
 

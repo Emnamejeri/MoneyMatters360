@@ -39,16 +39,16 @@ const schemas = {
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { z } from "zod";
-import { appRouter } from "../../../service/src/trpcServer";
+import { AppRouter } from "../../../service/src/trpcServer";
 
 // Create tRPC client
-const trpcClient = createTRPCClient<appRouter>({
+const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:3000/api",
+      url: "http://localhost:5432/moneymatters",
     }),
   ],
-  // @ts-ignore
+//@ts-ignore
   queries: {
     getUserProfile: {
       input: schemas.UserProfileRequest,

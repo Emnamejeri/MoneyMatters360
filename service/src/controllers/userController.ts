@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import UserBalance from "../models/userBalance";
 
 const userController = {
-  // Get user balance by user ID
   getUserBalanceById: async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id, 10);
@@ -68,7 +67,9 @@ const userController = {
       }
 
       if (!isValidCurrency(fromCurrency) || !isValidCurrency(toCurrency)) {
-        return res.status(400).json({ message: "Invalid currency please select another" });
+        return res
+          .status(400)
+          .json({ message: "Invalid currency please select another" });
       }
 
       let sourceBalance: number;

@@ -1,12 +1,15 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { trpcRouter } from "./trpcServer";
+import { httpLinkConfig } from "./trpcServer"; // Import AppRouter and httpLinkConfig
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use("/api/trpc", trpcRouter);
+const trpcEndpoint = httpLinkConfig.url;
+
+
+console.log("trpcEndpoint:", trpcEndpoint);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

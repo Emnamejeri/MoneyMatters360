@@ -35,13 +35,16 @@
         </div>
         <div class="form-group">
           <label for="address">Country of Residence:</label>
-          <input
-            type="text"
-            id="address"
-            name="address"
-            v-model="address"
-            required
-          />
+          <select id="address" name="address" v-model="address" required>
+            <option value="">Select Country</option>
+            <option
+              v-for="country in countries"
+              :key="country.code"
+              :value="country.name"
+            >
+              {{ country.name }}
+            </option>
+          </select>
         </div>
         <div class="form-group">
           <label for="dob">Date of Birth:</label>
@@ -68,7 +71,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import RegistrationConfirmation from "./RegistrationConfirmation.vue";
-import axios from "axios";
+import trpcClient from "../services/trpcClient";
 
 const fullName = ref("");
 const email = ref("");
@@ -78,6 +81,17 @@ const dob = ref("");
 const password = ref("");
 const errorMessage = ref("");
 const registrationSuccessful = ref(false);
+
+const countries = [
+  { code: "US", name: "United States" },
+  { code: "CA", name: "Canada" },
+  { code: "TN", name: "Tunisia" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "EE", name: "Estonia" },
+  { code: "JP", name: "Japan" },
+  { code: "SGP", name: "Singapore" },
+];
 
 const validateForm = () => {
   if (
@@ -91,13 +105,32 @@ const validateForm = () => {
     errorMessage.value = "All fields are required";
     return false;
   }
+
+  // to check if user is less than 18 years old when registering
+  const today = new Date();
+  const birthDate = new Date(dob.value);
+  const age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age;
+  }
+  if (age < 18) {
+    errorMessage.value =
+      "You must be at least 18 years old to register and Use our services.";
+    return false;
+  }
+
   return true;
 };
 
 const handleSubmit = async () => {
   if (validateForm()) {
     try {
-      const response = await axios.post("/api/register", {
+      //@ts-ignore
+      const response = await trpcClient.mutations.registerUser({
         fullName: fullName.value,
         email: email.value,
         username: username.value,
@@ -171,9 +204,9 @@ label {
   text-align: center;
 }
 
+select,
 input[type="text"],
 input[type="email"],
-input[type="address"],
 input[type="password"],
 input[type="date"] {
   width: 70%;
